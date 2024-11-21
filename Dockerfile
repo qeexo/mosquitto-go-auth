@@ -1,18 +1,18 @@
 # Define Mosquitto version, see also .github/workflows/build_and_push_docker_images.yml for
 # the automatically built images
-ARG MOSQUITTO_VERSION=2.0.18
+ARG MOSQUITTO_VERSION=2.0.20
 # Define libwebsocket version
 ARG LWS_VERSION=4.2.2
 
 # Use debian:stable-slim as a builder for Mosquitto and dependencies.
-FROM debian:stable-slim as mosquitto_builder
+FROM debian:stable-slim AS mosquitto_builder
 ARG MOSQUITTO_VERSION
 ARG LWS_VERSION
 
 # Get mosquitto build dependencies.
 RUN set -ex; \
     apt-get update; \
-    apt-get install -y wget build-essential cmake libssl-dev libcjson-dev
+    apt-get install -y wget build-essential cmake libssl-dev libcjson-dev libc6-dev gcc
 
 # Get libwebsocket. Debian's libwebsockets is too old for Mosquitto version > 2.x so it gets built from source.
 RUN set -ex; \
@@ -48,7 +48,14 @@ RUN tar xzvf mosquitto-${MOSQUITTO_VERSION}.tar.gz
 # Build mosquitto.
 RUN set -ex; \
     cd mosquitto-${MOSQUITTO_VERSION}; \
-    make CFLAGS="-Wall -O2 -I/build/lws/include" LDFLAGS="-L/build/lws/lib" WITH_WEBSOCKETS=yes; \
+    make CFLAGS="-Wall -O2 -I/build/lws/include" \
+      LDFLAGS="-L/build/lws/lib" \
+      WITH_ADNS=no \
+      WITH_DOCS=no \
+      WITH_SHARED_LIBRARIES=yes \
+      WITH_SRV=no \
+      WITH_STRIP=yes \
+      WITH_WEBSOCKETS=yes; \
     make install;
 
 # Use golang:latest as a builder for the Mosquitto Go Auth plugin.
@@ -70,6 +77,9 @@ RUN go env
 RUN set -ex; \
   if [ ! -z "$TARGETPLATFORM" ]; then \
     case "$TARGETPLATFORM" in \
+    "linux/amd64") \
+    apt update && apt install -y gcc libc6-dev \
+    ;; \    
   "linux/arm64") \
     apt update && apt install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross \
     ;; \
