@@ -77,9 +77,6 @@ RUN go env
 RUN set -ex; \
   if [ ! -z "$TARGETPLATFORM" ]; then \
     case "$TARGETPLATFORM" in \
-    "linux/amd64") \
-    apt update && apt install -y gcc libc6-dev \
-    ;; \    
   "linux/arm64") \
     apt update && apt install -y gcc-aarch64-linux-gnu libc6-dev-arm64-cross \
     ;; \
