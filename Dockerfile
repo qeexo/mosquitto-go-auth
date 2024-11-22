@@ -128,6 +128,7 @@ COPY --from=mosquitto_builder /usr/local/bin/mosquitto_sub /usr/bin/mosquitto_su
 COPY --from=mosquitto_builder /usr/local/bin/mosquitto_pub /usr/bin/mosquitto_pub
 COPY --from=mosquitto_builder /usr/local/bin/mosquitto_rr /usr/bin/mosquitto_rr
 COPY --from=mosquitto_builder /usr/local/lib/mosquitto_dynamic_security.so /usr/local/lib/mosquitto_dynamic_security.so
+RUN chown mosquitto:mosquitto /usr/local/lib/mosquitto_dynamic_security.so
 
 RUN ldconfig;
 
