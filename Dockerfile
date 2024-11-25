@@ -59,7 +59,7 @@ RUN set -ex; \
     make install;
 
 # Use golang:latest as a builder for the Mosquitto Go Auth plugin.
-FROM --platform=$BUILDPLATFORM tonistiigi/xx AS xx
+FROM --platform=$BUILDPLATFORM tonistiigi/xx:golang AS xx-golang
 FROM --platform=$BUILDPLATFORM golang:latest AS go_auth_builder
 
 ENV CGO_CFLAGS="-I/usr/local/include -fPIC"
@@ -71,7 +71,7 @@ ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
 # Install TARGETPLATFORM parser to translate its value to GOOS, GOARCH, and GOARM
-COPY --from=xx:golang / /
+COPY --from=xx-golang / /
 RUN go env
 
 # Install needed libc and gcc for target platform.
