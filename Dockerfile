@@ -70,7 +70,9 @@ ARG TARGETPLATFORM
 ARG BUILDPLATFORM
 
 # Install TARGETPLATFORM parser to translate its value to GOOS, GOARCH, and GOARM
-COPY --from=tonistiigi/xx:golang / /
+FROM --platform=$TARGETPLATFORM tonistiigi/xx:golang AS tonistiigi
+#COPY --from=tonistiigi/xx:golang / /
+COPY --from=tonistiigi / /
 RUN go env
 
 # Install needed libc and gcc for target platform.
